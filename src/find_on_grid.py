@@ -1,4 +1,5 @@
-from config import *
+from .config import MAZE_SIZE, SQUARE_SIZE
+from .ref import matriz
 
 def return_coords_matrix(x, y, matriz):
     return_x = 0

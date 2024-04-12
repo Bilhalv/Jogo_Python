@@ -1,4 +1,4 @@
-from config import *
+from .config import MAZE_SIZE
 
 matriz = []
 exit = [0, MAZE_SIZE-1]

@@ -1,11 +1,16 @@
-from turtle import width
-import pyglet
-from pyglet import shapes
-from config import *
-from find_on_grid import return_coords_matrix
-from utils import *
-from ref import isWalkable, entrance, exit
-from pyglet.gl import *
+#Labirinto de mago
+#3 itens aleatorios de inicio
+#não visualização do labirinto apenas comandos de onde ir
+#encontro com inimigos para gastar itens, se nao tiver, gasta vida
+
+import pyglet # type: ignore
+from pyglet import shapes   # type: ignore
+from pyglet.gl import * # type: ignore
+from src.config import *
+from src.find_on_grid import return_coords_matrix
+from src.utils import *
+from src.ref import isWalkable, entrance, exit, matriz
+from src.maze import build_maze
 
 batch = pyglet.graphics.Batch()
 
@@ -19,7 +24,7 @@ player = shapes.Circle(
     x=entrance[0]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2,
     y=(SQUARE_SIZE)/2,
     radius=SQUARE_SIZE/4,
-    color=(0, 0, 255, 200),
+    color=(100, 0, 100, 120),
 )
 
 def show_3x3(x, y):
@@ -27,7 +32,6 @@ def show_3x3(x, y):
     for coord in matriz_volta_player:
         if coord in isWalkable and coord != entrance and coord != exit:
             update_matriz(coord[0], coord[1], color=SECUNDARY_COLOR)
-    
 
 def isInWalkable(x, y):
     code = return_coords_matrix(x, y, matriz)
@@ -71,15 +75,13 @@ for column in range(MAZE_SIZE):
             batch=batch
         )
         matriz[column].append(rec)
+
 @window.event
 def on_draw():
     window.clear()
     batch.draw()
     show_3x3(entrance[0], entrance[1])
     player.draw()
-        
-
-from build_maze import build_maze
 
 build_maze()
 

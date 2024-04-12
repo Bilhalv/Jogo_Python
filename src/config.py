@@ -1,3 +1,4 @@
+# Configuration variables
 MAZE_SIZE = 10
 TITLE = "Mage Maze"
 PADDING = 1
@@ -7,4 +8,3 @@ DEFAULT_COLOR = (255, 255, 255, 100)
 SECUNDARY_COLOR = (255, 255, 255, 200)
 EXIT_COLOR = (255, 0, 0, 255)
 RANDOM_CHOICE = 2
-matriz = []
