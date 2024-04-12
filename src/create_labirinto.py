@@ -23,11 +23,7 @@ player = shapes.Circle(
 )
 
 def show_3x3(x, y):
-    matriz_volta_player = [
-        [x+1, y],
-        [x, y+1], [x, y], [x, y-1],
-        [x-1, y]
-    ]
+    matriz_volta_player = [ [x+1, y], [x, y+1], [x, y], [x, y-1], [x-1, y] ]
     for coord in matriz_volta_player:
         if coord in isWalkable and coord != entrance and coord != exit:
             update_matriz(coord[0], coord[1], color=SECUNDARY_COLOR)
@@ -50,6 +46,7 @@ def on_key_press(symbol, modifiers):
     down = player.y - SquareSize
     left = player.x - SquareSize
     right = player.x + SquareSize
+    
     if isUp or isDown or isLeft or isRight:
         if isUp and isInWalkable(player.x, up):
             player.y = up
