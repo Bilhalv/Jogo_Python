@@ -1,10 +1,7 @@
 import random
 from config import *
 from utils import *
-
-exit = [0, MAZE_SIZE-1]
-entrance = [MAZE_SIZE-1, 0]
-isWalkable = [entrance]
+from ref import *
 
 def build_maze():
     
@@ -31,7 +28,6 @@ def build_maze():
         if len(options) >= 1:
             current = options[0]
             isWalkable.append(current)
-            update_matriz(current[0], current[1], color=SECUNDARY_COLOR)
             
         else:
             isWalkable.pop()
@@ -39,7 +35,8 @@ def build_maze():
                 current = entrance
             else:
                 current = random.choice(isWalkable)
-
+    for walk in isWalkable:
+        update_matriz(walk[0], walk[1], color=SECUNDARY_COLOR)
     update_matriz(exit[0], exit[1], color=EXIT_COLOR)
     update_matriz(entrance[0], entrance[1], color=EXIT_COLOR)
     
