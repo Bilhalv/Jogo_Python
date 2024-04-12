@@ -3,13 +3,14 @@
 #não visualização do labirinto apenas comandos de onde ir
 #encontro com inimigos para gastar itens, se nao tiver, gasta vida
 
+from src.HUD import open_hud
 import pyglet # type: ignore
 from pyglet import shapes   # type: ignore
 from pyglet.gl import * # type: ignore
 from src.config import *
 from src.find_on_grid import return_coords_matrix
 from src.utils import *
-from src.ref import isWalkable, entrance, exit, matriz
+from src.ref import isWalkable, entrance, exit, matriz, HUD
 from src.maze import build_maze
 
 batch = pyglet.graphics.Batch()
@@ -84,5 +85,7 @@ def on_draw():
     player.draw()
 
 build_maze()
+
+open_hud()
 
 pyglet.app.run()
