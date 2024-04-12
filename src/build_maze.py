@@ -35,8 +35,6 @@ def build_maze():
                 current = entrance
             else:
                 current = random.choice(isWalkable)
-    for walk in isWalkable:
-        update_matriz(walk[0], walk[1], color=SECUNDARY_COLOR)
     update_matriz(exit[0], exit[1], color=EXIT_COLOR)
     update_matriz(entrance[0], entrance[1], color=EXIT_COLOR)
     
