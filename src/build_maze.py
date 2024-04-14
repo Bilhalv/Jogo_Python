@@ -1,9 +1,19 @@
 import random
-from .config import EXIT_COLOR
-from .utils import *
-from .ref import isWalkable, entrance, exit
+from .config import MAZE_SIZE
+from .grid import update_matriz
 
-def build_maze():
+def build_maze(isWalkable, entrance, exit, matriz):
+    def num_adjacent_walkables(x, y):
+        adjacent_coords = [
+            [x-1, y], [x+1, y], [x, y-1], [x, y+1], 
+            [x-1, y-1], [x+1, y-1], [x-1, y+1], [x+1, y+1]
+        ]
+        soma = 0
+        for coord in adjacent_coords:
+            if coord in isWalkable:
+                soma += 1
+        return soma
+
     
     current = entrance
     
@@ -35,16 +45,5 @@ def build_maze():
                 current = entrance
             else:
                 current = random.choice(isWalkable)
-    update_matriz(exit[0], exit[1], color=EXIT_COLOR)
-    update_matriz(entrance[0], entrance[1], color=EXIT_COLOR)
-    
-def num_adjacent_walkables(x, y):
-    adjacent_coords = [
-        [x-1, y], [x+1, y], [x, y-1], [x, y+1], 
-        [x-1, y-1], [x+1, y-1], [x-1, y+1], [x+1, y+1]
-    ]
-    soma = 0
-    for coord in adjacent_coords:
-        if coord in isWalkable:
-            soma += 1
-    return soma
+    update_matriz(exit[0], exit[1], (255, 0, 0), matriz=matriz)
+    update_matriz(entrance[0], entrance[1], (0, 255, 0), matriz=matriz)
