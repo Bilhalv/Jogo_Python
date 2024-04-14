@@ -1,49 +1,62 @@
+"""
+Function to build a maze using the recursive backtracking algorithm.
+
+Parameters:
+    isWalkable (list): list of walkable coordinates
+    entrance (list): coordinates of the entrance
+    exit (list): coordinates of the exit
+    matriz (list): grid of squares
+
+Returns:
+    None
+"""
 import random
 from .config import MAZE_SIZE
 from .grid import update_matriz
 
+
 def build_maze(isWalkable, entrance, exit, matriz):
+    """Recursive backtracking algorithm to build a maze"""
     def num_adjacent_walkables(x, y):
+        """Count number of walkable neighbors"""
         adjacent_coords = [
             [x-1, y], [x+1, y], [x, y-1], [x, y+1], 
             [x-1, y-1], [x+1, y-1], [x-1, y+1], [x+1, y+1]
         ]
-        soma = 0
-        for coord in adjacent_coords:
-            if coord in isWalkable:
-                soma += 1
-        return soma
+        return sum(1 for coord in adjacent_coords if coord in isWalkable)
 
-    
     current = entrance
-    
+
     while True:
+        # Check if we've reached the exit
         if current == exit:
             break
+
+        # Generate all possible moves
         N = [current[0], current[1] + 1]
         S = [current[0], current[1] - 1]
         E = [current[0] + 1, current[1]]
         W = [current[0] - 1, current[1]]
+        options = [c for c in [N, S, E, W]
+                   if 0 <= c[0] < MAZE_SIZE and 0 <= c[1] < MAZE_SIZE
+                   and num_adjacent_walkables(c[0], c[1]) <= 2
+                   and c not in isWalkable]
 
-        # Filter out options that have too many walkable neighbors
-        options = [
-            coord for coord in [N, S, E, W]
-            if 0 <= coord[0] < MAZE_SIZE and 0 <= coord[1] < MAZE_SIZE
-            and num_adjacent_walkables(coord[0], coord[1]) <= 2
-            and coord not in isWalkable
-        ]
-        
-        random.shuffle(options)
-        
-        if len(options) >= 1:
-            current = options[0]
-            isWalkable.append(current)
-            
-        else:
+        # If we have no options, backtrack
+        if not options:
             isWalkable.pop()
-            if len(isWalkable) == 0:
+            if not isWalkable:
                 current = entrance
             else:
                 current = random.choice(isWalkable)
+
+        # If we have options, choose one and update the list of walkable coords
+        else:
+            random.shuffle(options)
+            current = options[0]
+            isWalkable.append(current)
+
+    # Update colors of the starting and ending points
     update_matriz(exit[0], exit[1], (255, 0, 0), matriz=matriz)
     update_matriz(entrance[0], entrance[1], (0, 255, 0), matriz=matriz)
+

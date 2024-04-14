@@ -1,19 +1,44 @@
-from pyglet import shapes
+"""
+This module contains functions for handling player movement.
+"""
 import pyglet
 
 from .config import SECUNDARY_COLOR, SQUARE_SIZE
 from .grid import update_matriz
 
+
 def build_player(size, coord):
-    player = shapes.Circle(
+    """
+    Builds a player object.
+
+    Parameters:
+        size (int): radius of the player in pixels.
+        coord (list): coordinates of the player's center.
+
+    Returns:
+        a pyglet.shapes.Circle object representing the player.
+    """
+    player = pyglet.shapes.Circle(
         x=coord[0],
         y=coord[1],
         radius=size,
         color=(100, 0, 100, 255)
     )
-    return player 
+    return player
+
 
 def show_3x3(x, y, andaveis, quadrados, entrada, saida):
+    """
+    Highlights the 3x3 grid around the player.
+
+    Parameters:
+        x (int): x-coordinate of the player.
+        y (int): y-coordinate of the player.
+        andaveis (list): list of walkable coordinates.
+        quadrados (list): list of squares Sprites.
+        entrada (list): coordinates of the entrance.
+        saida (list): coordinates of the exit.
+    """
     x, y = int(x), int(y)
     up = [x, y+1]
     down = [x, y-1]
@@ -28,7 +53,20 @@ def show_3x3(x, y, andaveis, quadrados, entrada, saida):
     if right in andaveis and right != entrada and right != saida:
         update_matriz(right[0], right[1], SECUNDARY_COLOR, quadrados)
 
+
 def move_player(andaveis, sqr, player, quadrados, entrada, saida, key):
+    """
+    Moves the player based on keyboard input.
+
+    Parameters:
+        andaveis (list): list of walkable coordinates.
+        sqr (int): size of each square in pixels.
+        player (pyglet.shapes.Circle): player object.
+        quadrados (list): list of squares Sprites.
+        entrada (list): coordinates of the entrance.
+        saida (list): coordinates of the exit.
+        key (int): the key that was pressed.
+    """
     if key == pyglet.window.key.UP or key == pyglet.window.key.W:
         new_pos = [player.x, player.y+sqr]
         new_grid = [int(player.x//sqr), int((player.y + sqr)//sqr)]
@@ -48,3 +86,4 @@ def move_player(andaveis, sqr, player, quadrados, entrada, saida, key):
         player.x = new_pos[0]
         player.y = new_pos[1]
         show_3x3(player.x//sqr, player.y//sqr, andaveis, quadrados, entrada, saida)
+
