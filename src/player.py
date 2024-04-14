@@ -6,6 +6,30 @@ import pyglet
 from .config import SECUNDARY_COLOR, SQUARE_SIZE
 from .grid import update_matriz
 
+def draw_alert(message, window):
+    dialog = pyglet.text.Label(message,
+                               font_name='Arial',
+                               font_size=16,
+                               x=window.width // 2, y=window.height // 2,
+                               anchor_x='center', anchor_y='center')
+    
+    exit = pyglet.text.Label("Pressione espaço para sair",
+                             font_name='Arial',
+                             font_size=16,
+                             x=window.width // 2, y=window.height // 2 - 30,
+                             anchor_x='center', anchor_y='center')
+    bg = pyglet.shapes.Rectangle(x=0, y=0, width=window.width, height=window.height, color=(0, 0, 0, 10))
+    @window.event
+    def on_draw():
+        bg.draw()
+        dialog.draw()
+        exit.draw()
+    
+    @window.event
+    def on_key_press(symbol, modifiers):
+        if symbol == pyglet.window.key.SPACE:
+            window.close()
+
 
 def build_player(size, coord):
     """
@@ -54,7 +78,7 @@ def show_3x3(x, y, andaveis, quadrados, entrada, saida):
         update_matriz(right[0], right[1], SECUNDARY_COLOR, quadrados)
 
 
-def move_player(andaveis, sqr, player, quadrados, entrada, saida, key):
+def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window):
     """
     Moves the player based on keyboard input.
 
@@ -82,6 +106,10 @@ def move_player(andaveis, sqr, player, quadrados, entrada, saida, key):
     else:
         return
 
+    if new_grid == saida:
+        draw_alert("Parabéns, você encontrou o tesouro!", window)
+        return
+    
     if new_grid in andaveis:
         player.x = new_pos[0]
         player.y = new_pos[1]
