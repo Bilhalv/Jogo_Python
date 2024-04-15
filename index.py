@@ -1,106 +1,100 @@
 import pyglet
-from src.HUD.index import *
 from src.config import *
-from src.grid import criar_grid
-from src.build_maze import build_maze
-from src.player import *
+from pyglet import shapes, text
 
-"""
-Main window
-"""
-window = pyglet.window.Window(SCREEN_SIZE, SCREEN_SIZE+MENU_SIZE, "Labirinto do mago!")
+window = pyglet.window.Window(SCREEN_SIZE, SCREEN_SIZE+MENU_SIZE, "Inicio!")
 
-"""
-Grid of squares
-"""
-quadrados_batch, quadrados, label_batch, labels = criar_grid(SCREEN_SIZE, PADDING, SQUARE_SIZE, window)
+def boolStart(x, y):
+    return True 
 
-"""
-Start and end coordinates
-"""
-entrada = [0, SCREEN_SIZE//(SQUARE_SIZE+PADDING)-1]
-saida = [SCREEN_SIZE//(SQUARE_SIZE+PADDING)-1, 0]
+def boolHighscore(x, y):
+    return True 
 
-"""
-List of walkable coordinates
-"""
-andaveis = []
+dict = {
+    "Start": boolStart,
+    "Highscore": boolHighscore
+}
 
-"""
-Player's initial coordinates
-"""
-player_coord = [entrada[0]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2, entrada[1]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2]
+def make_button(xCoord:int,
+                yCoord:int,
+                text:str,
+                batch,
+                color: tuple,
+                text_color: tuple,
+                width:int,
+                height:int,
+                onClick,
+                window  # Pass the window object as a parameter
+                ):
+    bg = shapes.Rectangle(
+        x=xCoord,
+        y=yCoord,
+        width=width,
+        height=height,
+        color=color,
+        batch=batch
+    )
+    label = pyglet.text.Label(
+        text,
+        x=xCoord,
+        y=yCoord+height//4,
+        batch=batch,
+        color=text_color,
+        font_size=20,
+        width=width,
+        height=height,
+        align="center"
+    )
+    def bool (x, y):
+        return bg.x < x < bg.x + bg.width and bg.y < y < bg.y + bg.height
+    dict[text] = bool
+    return bg, label
 
-# build the maze
-build_maze(andaveis, entrada, saida, quadrados, labels)
+buttons = pyglet.graphics.Batch()
 
-# create player
-player = build_player(SQUARE_SIZE//4, player_coord)
-
-# show the starting positions
-show_3x3(entrada[0], entrada[1], andaveis, quadrados, entrada, saida, labels)
-andaveis.append(entrada)
-andaveis.append(saida)
-
-@window.event
-def on_key_press(symbol, modifiers):
-    """
-    Handle player movement
-    """
-    move_player(player=player, andaveis=andaveis, quadrados=quadrados, entrada=entrada, saida=saida, key=symbol, sqr=SQUARE_SIZE+PADDING, window=window, labels=labels)
-    if symbol == pyglet.window.key.ESCAPE:
-        exit()
-    if symbol == pyglet.window.key.SPACE:
-        start()
-    if symbol == pyglet.window.key.R:
-        restart()
-
-def restart():
-    """
-    Restarts the game.
-    """
-    global andaveis, quadrados, player, quadrados_batch
-    andaveis = []
-    quadrados_batch, quadrados, label_batch, labels = criar_grid(SCREEN_SIZE, PADDING, SQUARE_SIZE, window)
-    build_maze(andaveis, entrada, saida, quadrados, labels)
-    show_3x3(entrada[0], entrada[1], andaveis, quadrados, entrada, saida, labels)
-    andaveis.append(entrada)
-    andaveis.append(saida)
-    player_coord = [entrada[0]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2, entrada[1]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2]
-    player = build_player(SQUARE_SIZE//4, player_coord)
-
-def exit():
-    """
-    Exits the game.
-    """
+def start ():
+    print("start")
     window.close()
+    from game import run_game
+    run_game()
+    
+def highscore ():
+    print("highscore")
+    @window.event
+    def on_draw():
+        window.clear()
+        with open("highscore.txt", "r") as arq:
+            linhas = arq.readlines()
+            i = 0
+            for linha in linhas:
+                if "\n" in linha:
+                    linha = linha[:-1]
+                label = pyglet.text.Label(
+                    linha,
+                    x=(SCREEN_SIZE+MENU_SIZE)//4,
+                    y=(SCREEN_SIZE+MENU_SIZE)//2 + 100 + i * 50,
+                    batch=buttons,
+                    color=(255, 255, 255, 255),
+                    font_size=20
+                )
+                label.draw()
+                i -= 1
+    
 
-def start():
-    """
-    Starts the game.
-    """
-    global andaveis, quadrados, player, quadrados_batch
-    player_coord = [entrada[0]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2, entrada[1]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2]
-    player = build_player(SQUARE_SIZE//4, player_coord)
-
+start_button = make_button((SCREEN_SIZE+MENU_SIZE)//4, (SCREEN_SIZE+MENU_SIZE)//2, "Start", buttons, (0, 255, 0, 255), (255, 255, 255, 255), 200, 50, start, window)  # Pass window as an argument
+highscore_button = make_button((SCREEN_SIZE+MENU_SIZE)//4, (SCREEN_SIZE+MENU_SIZE)//2 - 100, "Highscore", buttons, (0, 255, 0, 255), (255, 255, 255, 255), 200, 50, highscore, window)  # Pass window as an argument
 
 @window.event
 def on_mouse_press(x, y, button, modifiers):
-    if isStart(x, y):
+    if dict["Start"](x, y):
         start()
-
-    elif isRestart(x, y):
-        restart()
+    elif dict["Highscore"](x, y):
+        highscore()
 
 @window.event
 def on_draw():
-    """
-    Draw the grid and player
-    """
     window.clear()
-    quadrados_batch.draw()
-    menu(window)
-    label_batch.draw()
-    player.draw()
+    buttons.draw()
 
 pyglet.app.run()
+
