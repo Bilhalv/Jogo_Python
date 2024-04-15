@@ -3,8 +3,8 @@ This module contains functions for handling player movement.
 """
 import pyglet
 
-from .config import SECUNDARY_COLOR, SQUARE_SIZE
-from .grid import update_matriz
+from .config import *
+from .grid import set_label, update_matriz
 
 def draw_alert(message, window):
     dialog = pyglet.text.Label(message,
@@ -18,7 +18,7 @@ def draw_alert(message, window):
                              font_size=16,
                              x=window.width // 2, y=window.height // 2 - 30,
                              anchor_x='center', anchor_y='center')
-    bg = pyglet.shapes.Rectangle(x=0, y=0, width=window.width, height=window.height, color=(0, 0, 0, 10))
+    bg = pyglet.shapes.Rectangle(x=0, y=0, width=window.width, height=window.height, color=(0, 0, 0, 5))
     @window.event
     def on_draw():
         bg.draw()
@@ -51,7 +51,7 @@ def build_player(size, coord):
     return player
 
 
-def show_3x3(x, y, andaveis, quadrados, entrada, saida):
+def show_3x3(x, y, andaveis, quadrados, entrada, saida, labels):
     """
     Highlights the 3x3 grid around the player.
 
@@ -64,21 +64,29 @@ def show_3x3(x, y, andaveis, quadrados, entrada, saida):
         saida (list): coordinates of the exit.
     """
     x, y = int(x), int(y)
-    up = [x, y+1]
-    down = [x, y-1]
-    left = [x-1, y]
-    right = [x+1, y]
-    if up in andaveis and up != entrada and up != saida:
-        update_matriz(up[0], up[1], SECUNDARY_COLOR, quadrados)
-    if down in andaveis and down != entrada and down != saida:
-        update_matriz(down[0], down[1], SECUNDARY_COLOR, quadrados)
-    if left in andaveis and left != entrada and left != saida:
-        update_matriz(left[0], left[1], SECUNDARY_COLOR, quadrados)
-    if right in andaveis and right != entrada and right != saida:
-        update_matriz(right[0], right[1], SECUNDARY_COLOR, quadrados)
+    up: list = [x, y+1]
+    down: list = [x, y-1]
+    left: list = [x-1, y]
+    right: list = [x+1, y]
+    
+    def find_color(coord):
+        if coord != entrada and coord != saida:
+            color = WALL_COLOR
+            if coord in andaveis:
+                color = FLOOR_COLOR
+            set_label(coord[0], coord[1], labels, "")
+            return color
+    
+    up_color = find_color(up)
+    down_color = find_color(down)
+    left_color = find_color(left)
+    right_color = find_color(right)
+    
+    for i in [[up, up_color], [down, down_color], [left, left_color], [right, right_color]]:
+        update_matriz(i[0][0], i[0][1], i[1], quadrados)
 
 
-def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window):
+def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window, labels):
     """
     Moves the player based on keyboard input.
 
@@ -113,5 +121,5 @@ def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window):
     if new_grid in andaveis:
         player.x = new_pos[0]
         player.y = new_pos[1]
-        show_3x3(player.x//sqr, player.y//sqr, andaveis, quadrados, entrada, saida)
+        show_3x3(player.x//sqr, player.y//sqr, andaveis, quadrados, entrada, saida, labels)
 

@@ -1,6 +1,6 @@
 from pyglet import shapes
 import pyglet
-from ..config import SCREEN_SIZE, MENU_SIZE, START_COORD, START_SIZE, RESTART_COORD, RESTART_SIZE
+from ..config import *
 
 def create_button_w_text(x, y, text, batch, color, text_color, width, height):
     bg = shapes.Rectangle(
@@ -23,7 +23,7 @@ def create_button_w_text(x, y, text, batch, color, text_color, width, height):
     )
     return bg, label
 
-def menu():
+def menu(window):
     """
     Builds the main menu.
     """
@@ -33,19 +33,17 @@ def menu():
         y=SCREEN_SIZE,
         width=SCREEN_SIZE,
         height=MENU_SIZE,
-        color=(255, 0, 255),
+        color=BG_MENU_COLOR,
         batch=menu
     )
-    
-    padding = MENU_SIZE//10
     
     start_bg, start_label = create_button_w_text(
         x=START_COORD[0],
         y=START_COORD[1],
         text="Return",
         batch=menu,
-        color=(255, 255, 255, 255),
-        text_color=(0, 0, 0, 255),
+        color=BG_BUTTON_COLOR,
+        text_color=BUTTON_LABEL_COLOR,
         width=START_SIZE[0],
         height=START_SIZE[1]
     )
@@ -55,10 +53,24 @@ def menu():
         y=RESTART_COORD[1],
         text="Restart",
         batch=menu,
-        color=(255, 255, 255, 255),
-        text_color=(0, 0, 0, 255),
+        color=BG_BUTTON_COLOR,
+        text_color=BUTTON_LABEL_COLOR,
         width=RESTART_SIZE[0],
         height=RESTART_SIZE[1]
     )
     
     return menu.draw()
+
+
+def isStart(x, y):
+    if START_COORD[0] <= x <= START_COORD[0] + START_SIZE[0] and START_COORD[1] <= y <= START_COORD[1] + START_SIZE[1]:
+        return True
+    else:
+        return False
+
+
+def isRestart(x, y):
+    if RESTART_COORD[0] <= x <= RESTART_COORD[0] + RESTART_SIZE[0] and RESTART_COORD[1] <= y <= RESTART_COORD[1] + RESTART_SIZE[1]:
+        return True
+    else:
+        return False

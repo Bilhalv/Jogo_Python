@@ -11,11 +11,11 @@ Returns:
     None
 """
 import random
-from .config import MAZE_SIZE
-from .grid import update_matriz
+from .config import *
+from .grid import set_label, update_matriz
 
 
-def build_maze(isWalkable, entrance, exit, matriz):
+def build_maze(isWalkable, entrance, exit, matriz, labels):
     """Recursive backtracking algorithm to build a maze"""
     def num_adjacent_walkables(x, y):
         """Count number of walkable neighbors"""
@@ -39,7 +39,7 @@ def build_maze(isWalkable, entrance, exit, matriz):
         W = [current[0] - 1, current[1]]
         options = [c for c in [N, S, E, W]
                    if 0 <= c[0] < MAZE_SIZE and 0 <= c[1] < MAZE_SIZE
-                   and num_adjacent_walkables(c[0], c[1]) <= 2
+                   and num_adjacent_walkables(c[0], c[1]) <= 3
                    and c not in isWalkable]
 
         # If we have no options, backtrack
@@ -57,6 +57,8 @@ def build_maze(isWalkable, entrance, exit, matriz):
             isWalkable.append(current)
 
     # Update colors of the starting and ending points
-    update_matriz(exit[0], exit[1], (255, 0, 0), matriz=matriz)
-    update_matriz(entrance[0], entrance[1], (0, 255, 0), matriz=matriz)
+    update_matriz(exit[0], exit[1], EXIT_COLOR, matriz=matriz)
+    update_matriz(entrance[0], entrance[1], ENTRANCE_COLOR, matriz=matriz)
+    set_label(entrance[0], entrance[1], labels, "Start")
+    set_label(exit[0], exit[1], labels, "End")
 
