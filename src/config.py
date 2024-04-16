@@ -1,9 +1,11 @@
 # Size configuration
-SQUARE_SIZE = 20 # Size of each square in pixels
+SQUARE_SIZE = 60 # Size of each square in pixels
 PADDING = 1 # Spacing between squares in pixels
-MAZE_SIZE = 20 # Number of squares on each side of the maze
+MAZE_SIZE = 5 # Number of squares on each side of the maze
 SCREEN_SIZE = MAZE_SIZE * (SQUARE_SIZE + PADDING) # Size of the window
 MENU_SIZE = 50
+BUTTON_WIDTH = 200
+BUTTON_HEIGHT = 50
 
 # Colors configuration
 EXIT_COLOR = (0, 150, 0, 255) # Color for the exit square
@@ -37,3 +39,5 @@ RESTART_SIZE = [
     SCREEN_SIZE//2 - (MENU_SIZE//10)*2,
     MENU_SIZE//2
 ]
+NAME = ""
+PASSOS = 0

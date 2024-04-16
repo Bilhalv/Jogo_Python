@@ -2,99 +2,139 @@ import pyglet
 from src.config import *
 from pyglet import shapes, text
 
-window = pyglet.window.Window(SCREEN_SIZE, SCREEN_SIZE+MENU_SIZE, "Inicio!")
+START_HEIGHT = BUTTON_HEIGHT*4 + BUTTON_HEIGHT//2
+START_WIDTH = BUTTON_WIDTH*2
 
-def boolStart(x, y):
-    return True 
+# Window setup
+window = pyglet.window.Window(START_WIDTH, START_HEIGHT, "Inicio")
 
-def boolHighscore(x, y):
-    return True 
+# Button dictionary
+button_dict = {}
 
-dict = {
-    "Start": boolStart,
-    "Highscore": boolHighscore
-}
+# Functions for button actions
+def start():
+    print("Starting game...")
+    window.close()
+    from telas.GetName import runGetName
+    runGetName()
 
-def make_button(xCoord:int,
-                yCoord:int,
-                text:str,
-                batch,
-                color: tuple,
-                text_color: tuple,
-                width:int,
-                height:int,
-                onClick,
-                window  # Pass the window object as a parameter
-                ):
+def highscore():
+    print("Viewing highscores...")
+    show_highscores()
+
+def show_highscores():
+    @window.event
+    def on_draw():
+        window.clear()
+        go_back_batch.draw()
+
+
+def go_back():
+    global is_high
+    is_high = False
+    @window.event
+    def on_draw():
+        window.clear()
+        buttons_batch.draw()
+
+# Button action functions
+def create_bool(x, y, bgx, bgy):
+    return bgx < x < bgx + BUTTON_WIDTH and bgy < y < bgy + BUTTON_HEIGHT
+
+# Button creation function
+def make_button(x_coord, y_coord, text, batch, color, text_color):
     bg = shapes.Rectangle(
-        x=xCoord,
-        y=yCoord,
-        width=width,
-        height=height,
+        x=x_coord,
+        y=y_coord,
+        width=BUTTON_WIDTH,
+        height=BUTTON_HEIGHT,
         color=color,
         batch=batch
     )
     label = pyglet.text.Label(
         text,
-        x=xCoord,
-        y=yCoord+height//4,
+        x=x_coord,
+        y=y_coord + BUTTON_HEIGHT // 4,
         batch=batch,
         color=text_color,
         font_size=20,
-        width=width,
-        height=height,
-        align="center"
+        align="center",
+        width=BUTTON_WIDTH,
     )
-    def bool (x, y):
-        return bg.x < x < bg.x + bg.width and bg.y < y < bg.y + bg.height
-    dict[text] = bool
+    button_dict[text] = lambda x, y: create_bool(x, y, bg.x, bg.y)
     return bg, label
 
-buttons = pyglet.graphics.Batch()
+# Initialize button batch
+buttons_batch = pyglet.graphics.Batch()
 
-def start ():
-    print("start")
-    window.close()
-    from game import run_game
-    run_game()
-    
-def highscore ():
-    print("highscore")
-    @window.event
-    def on_draw():
-        window.clear()
-        with open("highscore.txt", "r") as arq:
-            linhas = arq.readlines()
-            i = 0
-            for linha in linhas:
-                if "\n" in linha:
-                    linha = linha[:-1]
-                label = pyglet.text.Label(
-                    linha,
-                    x=(SCREEN_SIZE+MENU_SIZE)//4,
-                    y=(SCREEN_SIZE+MENU_SIZE)//2 + 100 + i * 50,
-                    batch=buttons,
-                    color=(255, 255, 255, 255),
-                    font_size=20
-                )
-                label.draw()
-                i -= 1
-    
+go_back_batch = pyglet.graphics.Batch()
 
-start_button = make_button((SCREEN_SIZE+MENU_SIZE)//4, (SCREEN_SIZE+MENU_SIZE)//2, "Start", buttons, (0, 255, 0, 255), (255, 255, 255, 255), 200, 50, start, window)  # Pass window as an argument
-highscore_button = make_button((SCREEN_SIZE+MENU_SIZE)//4, (SCREEN_SIZE+MENU_SIZE)//2 - 100, "Highscore", buttons, (0, 255, 0, 255), (255, 255, 255, 255), 200, 50, highscore, window)  # Pass window as an argument
+go_back_button_bg, go_back_button_label =   make_button(
+    SCREEN_SIZE // 4,
+    BUTTON_HEIGHT // 2,
+    "Back",
+    go_back_batch,
+    (0, 255, 0, 255),
+    (255, 255, 255, 255)
+)
 
+# Create buttons
+start_button_bg, start_button_label = make_button(
+    BUTTON_WIDTH//2,
+    BUTTON_HEIGHT*2 + BUTTON_HEIGHT//2,
+    "Start",
+    buttons_batch,
+    (0, 255, 0, 255),
+    (255, 255, 255, 255)
+)
+highscore_button_bg, highscore_button_label = make_button(
+    BUTTON_WIDTH//2,
+    BUTTON_HEIGHT,
+    "Highscore",
+    buttons_batch,
+    (0, 255, 0, 255),
+    (255, 255, 255, 255)
+)
+
+high = []
+with open("highscore.txt", "r") as file:
+    highscore_lines = file.readlines()
+    for idx, line in enumerate(highscore_lines):
+        line = line.rstrip()
+        if idx == 5:
+            break
+        label = pyglet.text.Label(
+            line,
+            x=START_WIDTH // 4,
+            y=START_HEIGHT - (idx+1) * 25,
+            color=(255, 255, 255, 255),
+            font_size=15,
+            batch=go_back_batch,
+            align="center",
+            width=START_WIDTH // 2
+        )
+        high.append(label)
+
+# Event handlers
 @window.event
 def on_mouse_press(x, y, button, modifiers):
-    if dict["Start"](x, y):
+    global is_high
+    dict = button_dict
+    if dict["Start"](x, y) and not is_high:
         start()
-    elif dict["Highscore"](x, y):
-        highscore()
+    elif dict["Highscore"](x, y) and not is_high:
+        is_high = True
+        show_highscores()
+    elif dict["Back"](x, y) and is_high:
+        is_high = False
+        go_back()
 
 @window.event
 def on_draw():
     window.clear()
-    buttons.draw()
+    buttons_batch.draw()
 
-pyglet.app.run()
-
+# Application entry point
+if __name__ == "__main__":
+    is_high = False
+    pyglet.app.run()

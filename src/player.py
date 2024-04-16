@@ -1,6 +1,7 @@
 """
 This module contains functions for handling player movement.
 """
+import time
 import pyglet
 
 from .config import *
@@ -10,20 +11,15 @@ def draw_alert(message, window):
     dialog = pyglet.text.Label(message,
                                font_name='Arial',
                                font_size=16,
-                               x=window.width // 2, y=window.height // 2,
-                               anchor_x='center', anchor_y='center')
-    
-    exit = pyglet.text.Label("Pressione espaço para sair",
-                             font_name='Arial',
-                             font_size=16,
-                             x=window.width // 2, y=window.height // 2 - 30,
-                             anchor_x='center', anchor_y='center')
+                               multiline=True,
+                               width=window.width // 2,
+                               x=window.width // 4, y=window.height // 2,
+                               align='center')
     bg = pyglet.shapes.Rectangle(x=0, y=0, width=window.width, height=window.height, color=(0, 0, 0, 5))
     @window.event
     def on_draw():
         bg.draw()
         dialog.draw()
-        exit.draw()
     
     @window.event
     def on_key_press(symbol, modifiers):
@@ -115,7 +111,8 @@ def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window, l
         return
 
     if new_grid == saida:
-        draw_alert("Parabéns, você encontrou o tesouro!", window)
+        global PASSOS, NAME
+        draw_alert(F"Parabéns, {NAME}, você encontrou o tesouro em {PASSOS} passos!", window)
         return
     
     if new_grid in andaveis:
