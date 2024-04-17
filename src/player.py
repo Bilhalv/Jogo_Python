@@ -26,6 +26,8 @@ def draw_alert(message, window):
     def on_key_press(symbol, modifiers):
         if symbol == pyglet.window.key.SPACE:
             window.close()
+            from index import run_index
+            run_index()
 
 
 def build_player(size, coord):

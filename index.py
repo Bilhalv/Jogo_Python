@@ -71,7 +71,7 @@ buttons_batch = pyglet.graphics.Batch()
 go_back_batch = pyglet.graphics.Batch()
 
 go_back_button_bg, go_back_button_label =   make_button(
-    SCREEN_SIZE // 4,
+    BUTTON_WIDTH//2,
     BUTTON_HEIGHT // 2,
     "Back",
     go_back_batch,
@@ -100,18 +100,33 @@ highscore_button_bg, highscore_button_label = make_button(
 highscore_lines = get_highscore()
 high = []
 for idx, x in enumerate(highscore_lines):
+    values = x.split(" - ")
+    num_text = values[0]
+    line_text = str(idx+1) + "º " + values[1]
     line = pyglet.text.Label(
-        x,
-        x=START_WIDTH // 4,
-        y=START_HEIGHT - BUTTON_HEIGHT // 2 - idx * 20,
+        line_text,
+        x=BUTTON_WIDTH//2,
+        y=START_HEIGHT - BUTTON_HEIGHT - idx * 20,
         batch=go_back_batch,
         color=(255, 255, 255, 255),
         font_size=12,
-        width=START_WIDTH // 2,
-        align="center",
-        anchor_x="center",
+        width=BUTTON_WIDTH,
+        align="left",
+        font_name='Consolas',
     )
-    high.append(line)
+    num = pyglet.text.Label(
+        num_text,
+        x=BUTTON_WIDTH//2,
+        y=START_HEIGHT - BUTTON_HEIGHT - idx * 20,
+        batch=go_back_batch,
+        color=(255, 255, 255, 255),
+        font_size=12,
+        width=BUTTON_WIDTH,
+        align="right",
+        font_name="Consolas",
+    )
+    values = [num, line]
+    high.append(values)
 # Event handlers
 @window.event
 def on_mouse_press(x, y, button, modifiers):
@@ -129,7 +144,7 @@ def on_mouse_press(x, y, button, modifiers):
 @window.event
 def on_key_press(symbol, modifiers):
     if symbol == pyglet.window.key.ESCAPE:
-        exit()
+        window.close()
     if symbol == pyglet.window.key.SPACE:
         start()
     if symbol == pyglet.window.key.H:
@@ -142,5 +157,9 @@ def on_draw():
 
 # Application entry point
 if __name__ == "__main__":
+    is_high = False
+    pyglet.app.run()
+
+def run_index():
     is_high = False
     pyglet.app.run()
