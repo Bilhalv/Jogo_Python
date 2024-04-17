@@ -1,9 +1,5 @@
-20 - BIL
-20 - BIL
-20 - BIL
-20 - BIL
-20 - BIL
-20 - BIL
+0 - ANA
+10 - DFG
 20 - BIL
 20 - BIL
 20 - BIL

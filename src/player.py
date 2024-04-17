@@ -6,6 +6,7 @@ import pyglet
 from .config import *
 from .grid import set_label, update_matriz
 import global_
+from .highscore import add_highscore
 
 def draw_alert(message, window):
     dialog = pyglet.text.Label(message,
@@ -112,6 +113,7 @@ def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window, l
 
     if new_grid == saida:
         draw_alert(F"Parabéns, {global_.NAME}, você encontrou o tesouro em {global_.PASSOS} passos!", window)
+        add_highscore(str(global_.PASSOS)+" - "+str(global_.NAME))
         return
     
     if new_grid in andaveis:

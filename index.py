@@ -1,6 +1,7 @@
 import pyglet
 from src.config import *
 from pyglet import shapes 
+from src.highscore import get_highscore
 
 START_HEIGHT = BUTTON_HEIGHT*4 + BUTTON_HEIGHT//2
 START_WIDTH = BUTTON_WIDTH*2
@@ -96,25 +97,21 @@ highscore_button_bg, highscore_button_label = make_button(
     (255, 255, 255, 255)
 )
 
+highscore_lines = get_highscore()
 high = []
-with open("highscore.txt", "r") as file:
-    highscore_lines = file.readlines()
-    for idx, line in enumerate(highscore_lines):
-        line = line.rstrip()
-        if idx == 5:
-            break
-        label = pyglet.text.Label(
-            line,
-            x=START_WIDTH // 4,
-            y=START_HEIGHT - (idx+1) * 25,
-            color=(255, 255, 255, 255),
-            font_size=15,
-            batch=go_back_batch,
-            align="center",
-            width=START_WIDTH // 2
-        )
-        high.append(label)
-
+for idx, x in enumerate(highscore_lines):
+    line = pyglet.text.Label(
+        x,
+        x=START_WIDTH // 4,
+        y=START_HEIGHT - BUTTON_HEIGHT // 2 - idx * 20,
+        batch=go_back_batch,
+        color=(255, 255, 255, 255),
+        font_size=12,
+        width=START_WIDTH // 2,
+        align="center",
+        anchor_x="center",
+    )
+    high.append(line)
 # Event handlers
 @window.event
 def on_mouse_press(x, y, button, modifiers):
@@ -128,6 +125,15 @@ def on_mouse_press(x, y, button, modifiers):
     elif dict["Back"](x, y) and is_high:
         is_high = False
         go_back()
+
+@window.event
+def on_key_press(symbol, modifiers):
+    if symbol == pyglet.window.key.ESCAPE:
+        exit()
+    if symbol == pyglet.window.key.SPACE:
+        start()
+    if symbol == pyglet.window.key.H:
+        highscore()
 
 @window.event
 def on_draw():
