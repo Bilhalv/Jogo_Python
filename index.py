@@ -11,6 +11,7 @@ window = pyglet.window.Window(START_WIDTH, START_HEIGHT, "Inicio")
 
 # Button dictionary
 button_dict = {}
+is_high = False
 
 # Functions for button actions
 def start():
@@ -161,5 +162,4 @@ if __name__ == "__main__":
     pyglet.app.run()
 
 def run_index():
-    is_high = False
     pyglet.app.run()
