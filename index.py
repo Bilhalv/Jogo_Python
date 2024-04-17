@@ -1,6 +1,6 @@
 import pyglet
 from src.config import *
-from pyglet import shapes, text
+from pyglet import shapes 
 
 START_HEIGHT = BUTTON_HEIGHT*4 + BUTTON_HEIGHT//2
 START_WIDTH = BUTTON_WIDTH*2

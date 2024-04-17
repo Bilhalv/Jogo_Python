@@ -1,5 +1,5 @@
 import pyglet
-from src.config import NAME
+import global_
 
 # Create a window
 window = pyglet.window.Window(400, 200, "Insira seu nome")
@@ -40,12 +40,11 @@ def on_text(text):
 
 @window.event
 def on_key_press(symbol, modifiers):
-    global NAME
     if symbol == pyglet.window.key.BACKSPACE:
         input_box.text = input_box.text[:-1]
     elif symbol == pyglet.window.key.ENTER and len(input_box.text) == 3:
         from telas.game import run_game
-        NAME = input_box.text
+        global_.NAME = str(input_box.text)
         window.close()
         run_game()
 

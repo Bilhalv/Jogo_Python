@@ -39,5 +39,3 @@ RESTART_SIZE = [
     SCREEN_SIZE//2 - (MENU_SIZE//10)*2,
     MENU_SIZE//2
 ]
-NAME = ""
-PASSOS = 0

@@ -1,11 +1,11 @@
 """
 This module contains functions for handling player movement.
 """
-import time
 import pyglet
 
 from .config import *
 from .grid import set_label, update_matriz
+import global_
 
 def draw_alert(message, window):
     dialog = pyglet.text.Label(message,
@@ -111,12 +111,12 @@ def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window, l
         return
 
     if new_grid == saida:
-        global PASSOS, NAME
-        draw_alert(F"Parabéns, {NAME}, você encontrou o tesouro em {PASSOS} passos!", window)
+        draw_alert(F"Parabéns, {global_.NAME}, você encontrou o tesouro em {global_.PASSOS} passos!", window)
         return
     
     if new_grid in andaveis:
         player.x = new_pos[0]
         player.y = new_pos[1]
         show_3x3(player.x//sqr, player.y//sqr, andaveis, quadrados, entrada, saida, labels)
+        global_.PASSOS += 1
 
