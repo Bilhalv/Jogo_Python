@@ -28,6 +28,7 @@ def draw_alert(message, window):
             window.close()
             from index import run_index
             run_index()
+            run_index()
 
 
 def build_player(size, coord):

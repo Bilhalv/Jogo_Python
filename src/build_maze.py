@@ -13,7 +13,7 @@ Returns:
 import random
 from .config import *
 from .grid import set_label, update_matriz
-
+MAZE_SIZE = global_.DIFICULDADE_ATUAL
 
 def build_maze(isWalkable, entrance, exit, matriz, labels):
     """Recursive backtracking algorithm to build a maze"""

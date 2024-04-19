@@ -3,11 +3,12 @@ from pyglet import shapes
 from src.config import *
 from src.highscore import get_highscore
 
+is_high = False
 START_HEIGHT = BUTTON_HEIGHT * 4 + BUTTON_HEIGHT // 2
 START_WIDTH = BUTTON_WIDTH * 2
 num_buttons = 3
 margem = 2
-margem_inicial =  ((BUTTON_HEIGHT + margem) * num_buttons)*2
+margem_inicial = (START_HEIGHT - ((BUTTON_HEIGHT + margem) * num_buttons)) // 4
 
 class Button:
     def __init__(self, x, y, text, color, text_color, action, batch):
@@ -21,7 +22,7 @@ class Button:
         
         if (batch == buttons_batch):
             global num_buttons
-            y = margem_inicial - ((BUTTON_HEIGHT + margem) * num_buttons)
+            y =  ((BUTTON_HEIGHT + margem) * num_buttons) - margem_inicial
             num_buttons -= 1
 
         # Calculate button size dynamically based on available space
@@ -52,6 +53,12 @@ def start_game():
 def view_highscores():
     print("Viewing highscores...")
     show_highscores()
+
+def run_settings():
+    print("Running settings...")
+    window.close()
+    from telas.settings import runSettings
+    runSettings()
 
 def show_highscores():
     global is_high
@@ -85,8 +92,8 @@ buttons.append(Button(
     (0, 255, 0, 255), (255, 255, 255, 255), view_highscores, buttons_batch
 ))
 buttons.append(Button(
-    BUTTON_WIDTH // 2, BUTTON_HEIGHT, "A",
-    (0, 255, 0, 255), (255, 255, 255, 255), view_highscores, buttons_batch
+    BUTTON_WIDTH // 2, BUTTON_HEIGHT, "Settings",
+    (0, 255, 0, 255), (255, 255, 255, 255), run_settings, buttons_batch
 ))
 buttons.append(Button(
     BUTTON_WIDTH // 2, BUTTON_HEIGHT // 2, "Back",
@@ -132,12 +139,7 @@ def on_draw():
     buttons_batch.draw()
     go_back_batch.draw() if is_high else None
 
-# Application entry point
-if __name__ == "__main__":
-    is_high = False
+def run_index():
     pyglet.app.run()
 
-def run_index():
-    global is_high
-    is_high = False
-    pyglet.app.run()
+pyglet.app.run()

@@ -2,6 +2,24 @@ from pyglet import shapes
 import pyglet
 from ..config import *
 
+SCREEN_SIZE = global_.DIFICULDADE_ATUAL * (SQUARE_SIZE + PADDING)
+START_COORD = [
+    MENU_SIZE//10,
+    SCREEN_SIZE+MENU_SIZE//4,
+]
+START_SIZE = [
+    SCREEN_SIZE//2 - (MENU_SIZE//10)*2,
+    MENU_SIZE//2
+]
+RESTART_COORD = [
+    SCREEN_SIZE//2,
+    SCREEN_SIZE+MENU_SIZE//4,
+]
+RESTART_SIZE = [
+    SCREEN_SIZE//2 - (MENU_SIZE//10)*2,
+    MENU_SIZE//2
+]
+
 def create_button_w_text(x, y, text, batch, color, text_color, width, height):
     bg = shapes.Rectangle(
         x,

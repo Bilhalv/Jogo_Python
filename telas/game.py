@@ -5,6 +5,8 @@ from src.grid import criar_grid
 from src.build_maze import build_maze
 from src.player import *
 
+SCREEN_SIZE = global_.DIFICULDADE_ATUAL * (SQUARE_SIZE + PADDING)
+
 """
 Main window
 """
