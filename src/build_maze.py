@@ -13,9 +13,9 @@ Returns:
 import random
 from .config import *
 from .grid import set_label, update_matriz
-MAZE_SIZE = global_.DIFICULDADE_ATUAL
 
 def build_maze(isWalkable, entrance, exit, matriz, labels):
+    print(global_.DIFICULDADE_ATUAL)
     """Recursive backtracking algorithm to build a maze"""
     def num_adjacent_walkables(x, y):
         """Count number of walkable neighbors"""
@@ -38,7 +38,7 @@ def build_maze(isWalkable, entrance, exit, matriz, labels):
         E = [current[0] + 1, current[1]]
         W = [current[0] - 1, current[1]]
         options = [c for c in [N, S, E, W]
-                   if 0 <= c[0] < MAZE_SIZE and 0 <= c[1] < MAZE_SIZE
+                   if 0 <= c[0] < global_.DIFICULDADE_ATUAL and 0 <= c[1] < global_.DIFICULDADE_ATUAL
                    and num_adjacent_walkables(c[0], c[1]) <= 3
                    and c not in isWalkable]
 

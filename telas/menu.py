@@ -9,8 +9,8 @@ def Run_Menu(menu:Screen):
 
     def start_button():
         print("Start")
-        from telas import GetName
-        GetName(menu)
+        from .GetName import Run_GetName
+        Run_GetName(menu)
 
     def settings_button():
         print("Settings")
@@ -58,16 +58,20 @@ def Run_Menu(menu:Screen):
     }
 
     buttons = []
+    padding = 5
+    height = 100
+    width = 300
     for i, button in enumerate(buttons_dict):
         buttons.append(Button(
             x=menu.window.width//2,
-            y=menu.window.height//2 - (len(buttons_dict)//2-i) * 150,
+            y=menu.window.height*0.85 - (len(buttons_dict) + i) * (height + padding),
             text=button,
             batch=buttons_batch,
             function=buttons_dict[button]["function"],
-            width=300,
-            height=100
+            width=width,
+            height=height
         ))
 
     # Start the event loop
     pyglet.app.run()
+    

@@ -86,15 +86,15 @@ def criar_grid(lado_tela, espaco, lado_quadrado, window):
             x = i * (espaco + lado_quadrado)
             y = j * (espaco + lado_quadrado)
             square = shapes.Rectangle(
-                x=x,
-                y=y,
+                x=x+window.width//4,
+                y=y+window.height//4,
                 width=lado_quadrado,
                 height=lado_quadrado,
                 color=UNDISCOVERED_COLOR,
                 batch=batch
             )
             squares_grid[i].append(square)
-            labels_grid[i].append(build_labels(x, y, label_batch, lado_quadrado))
+            labels_grid[i].append(build_labels(x+window.width//4, y+window.height//4, label_batch, lado_quadrado))
     
     return batch, squares_grid, label_batch, labels_grid
 def set_label(x, y, labels, text):

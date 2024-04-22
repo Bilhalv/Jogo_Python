@@ -4,7 +4,7 @@ class Screen:
     def __init__(self, title):
         self.title = title
         self.window = pyglet.window.Window(caption=self.title)
-        # self.window.set_fullscreen(True)
+        self.window.set_fullscreen(True)
 
     def start(self):
         self.clear()

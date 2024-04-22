@@ -4,6 +4,7 @@ from .Screen import Screen
 from pyglet.window import mouse
 import global_
 from src.dificulty import *
+import global_
 
 def Run_Settings(settings):
     batch = pyglet.graphics.Batch()
@@ -62,6 +63,8 @@ def Run_Settings(settings):
     @settings.window.event
     def on_key_press(symbol, modifiers):
         if symbol == pyglet.window.key.ENTER:
+            global DIF_TEMP
+            import global_
             global_.DIFICULDADE_ATUAL = DIF_TEMP
             from .menu import Run_Menu
             Run_Menu(settings)

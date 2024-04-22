@@ -25,10 +25,9 @@ def draw_alert(message, window):
     @window.event
     def on_key_press(symbol, modifiers):
         if symbol == pyglet.window.key.SPACE:
-            window.close()
-            from index import run_index
-            run_index()
-            run_index()
+            window.clear()
+            from telas.menu import Run_Menu
+            Run_Menu(window)
 
 
 def build_player(size, coord):
@@ -112,6 +111,7 @@ def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window, l
         new_pos = [player.x+sqr, player.y]
         new_grid = [int((player.x + sqr)//sqr), int(player.y//sqr)]
     else:
+        print("Invalid key")
         return
 
     if new_grid == saida:

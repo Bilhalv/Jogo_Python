@@ -33,8 +33,8 @@ class Button:
         self.function = function
 
     def check_click(self, x, y):
-        if x > self.x and x < self.x + self.width:
-            if y > self.y and y < self.y + self.height:
+        if x > self.bg.x and x < self.bg.x + self.bg.width:
+            if y > self.bg.y and y < self.bg.y + self.bg.height:
                 return True
         return False
     
