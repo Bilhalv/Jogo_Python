@@ -1,127 +1,78 @@
-"""
-This module contains functions for handling player movement.
-"""
 import pyglet
-
 from .config import *
-from .grid import set_label, update_matriz
-import global_
-from .highscore import add_highscore
+from .grid import Grid
 
-def draw_alert(message, window):
-    dialog = pyglet.text.Label(message,
-                               font_name='Arial',
-                               font_size=16,
-                               multiline=True,
-                               width=window.width // 2,
-                               x=window.width // 4, y=window.height // 2,
-                               align='center')
-    bg = pyglet.shapes.Rectangle(x=0, y=0, width=window.width, height=window.height, color=(0, 0, 0, 5))
-    @window.event
-    def on_draw():
-        bg.draw()
-        dialog.draw()
-    
-    @window.event
-    def on_key_press(symbol, modifiers):
-        if symbol == pyglet.window.key.SPACE:
-            window.clear()
-            from telas.menu import Run_Menu
-            Run_Menu(window)
+class Player:
+    def __init__(self, grid:Grid):
+        """
+        Player object
 
+        Parameters:
+            grid (Grid): grid object
+            entrance (list): coordinates of the entrance
+            exit (list): coordinates of the exit
+        """
+        self.grid = grid
+        self.step = grid.square_size
+        self.player = pyglet.shapes.Circle(
+            x=grid.squares_grid[grid.entrance[0]][grid.entrance[1]].x + grid.square_size // 2,
+            y=grid.squares_grid[grid.entrance[0]][grid.entrance[1]].y + grid.square_size // 2,
+            radius=grid.square_size // 3,
+            color=(100, 0, 100, 255)
+        )
 
-def build_player(size, coord):
-    """
-    Builds a player object.
+    def draw(self):
+        """
+        Draw the player
+        """
+        self.player.draw()
 
-    Parameters:
-        size (int): radius of the player in pixels.
-        coord (list): coordinates of the player's center.
+    def remove(self):
+        """
+        Remove the player
+        """
+        self.player.delete()
 
-    Returns:
-        a pyglet.shapes.Circle object representing the player.
-    """
-    player = pyglet.shapes.Circle(
-        x=coord[0],
-        y=coord[1],
-        radius=size,
-        color=(100, 0, 100, 255)
-    )
-    return player
+    def update(self):
+        """
+        Update the player
+        """
+        self.remove()
+        self.draw()
 
+    def move(self, key):
+        """
+        Move the player based on keyboard input
 
-def show_3x3(x, y, andaveis, quadrados, entrada, saida, labels):
-    """
-    Highlights the 3x3 grid around the player.
+        Parameters:
+            key (int): the key that was pressed
+        """
+        dx = {pyglet.window.key.UP:    0, pyglet.window.key.W:   0,
+              pyglet.window.key.DOWN:  0, pyglet.window.key.S:  -self.step,
+              pyglet.window.key.LEFT: -self.step, pyglet.window.key.A: 0,
+              pyglet.window.key.RIGHT: self.step, pyglet.window.key.D: 0}.get(key, 0)
+        dy = {pyglet.window.key.UP:    -self.step, pyglet.window.key.W: -self.step,
+              pyglet.window.key.DOWN:   self.step, pyglet.window.key.S:   self.step,
+              pyglet.window.key.LEFT:  0, pyglet.window.key.A:    0,
+              pyglet.window.key.RIGHT: 0, pyglet.window.key.D:    0}.get(key, 0)
+        
+        new_pos = self.player.x + dx, self.player.y + dy
+        new_grid:tuple[int, int] = (new_pos[0] // self.step, new_pos[1] // self.step)
+        if key not in {pyglet.window.key.UP, pyglet.window.key.DOWN, pyglet.window.key.LEFT, pyglet.window.key.RIGHT}:
+            print("Invalid key")
+            return
 
-    Parameters:
-        x (int): x-coordinate of the player.
-        y (int): y-coordinate of the player.
-        andaveis (list): list of walkable coordinates.
-        quadrados (list): list of squares Sprites.
-        entrada (list): coordinates of the entrance.
-        saida (list): coordinates of the exit.
-    """
-    x, y = int(x), int(y)
-    up: list = [x, y+1]
-    down: list = [x, y-1]
-    left: list = [x-1, y]
-    right: list = [x+1, y]
-    
-    def find_color(coord):
-        if coord != entrada and coord != saida:
-            color = WALL_COLOR
-            if coord in andaveis:
-                color = FLOOR_COLOR
-            set_label(coord[0], coord[1], labels, "")
-            return color
-    
-    up_color = find_color(up)
-    down_color = find_color(down)
-    left_color = find_color(left)
-    right_color = find_color(right)
-    
-    for i in [[up, up_color], [down, down_color], [left, left_color], [right, right_color]]:
-        update_matriz(i[0][0], i[0][1], i[1], quadrados)
-
-
-def move_player(andaveis, sqr, player, quadrados, entrada, saida, key, window, labels):
-    """
-    Moves the player based on keyboard input.
-
-    Parameters:
-        andaveis (list): list of walkable coordinates.
-        sqr (int): size of each square in pixels.
-        player (pyglet.shapes.Circle): player object.
-        quadrados (list): list of squares Sprites.
-        entrada (list): coordinates of the entrance.
-        saida (list): coordinates of the exit.
-        key (int): the key that was pressed.
-    """
-    if key == pyglet.window.key.UP or key == pyglet.window.key.W:
-        new_pos = [player.x, player.y+sqr]
-        new_grid = [int(player.x//sqr), int((player.y + sqr)//sqr)]
-    elif key == pyglet.window.key.DOWN or key == pyglet.window.key.S:
-        new_pos = [player.x, player.y-sqr]
-        new_grid = [int(player.x//sqr), int((player.y - sqr)//sqr)]
-    elif key == pyglet.window.key.LEFT or key == pyglet.window.key.A:
-        new_pos = [player.x-sqr, player.y]
-        new_grid = [int((player.x - sqr)//sqr), int(player.y//sqr)]
-    elif key == pyglet.window.key.RIGHT or key == pyglet.window.key.D:
-        new_pos = [player.x+sqr, player.y]
-        new_grid = [int((player.x + sqr)//sqr), int(player.y//sqr)]
-    else:
-        print("Invalid key")
-        return
-
-    if new_grid == saida:
-        draw_alert(F"Parabéns, {global_.NAME}, você encontrou o tesouro em {global_.PASSOS} passos!", window)
-        add_highscore(str(global_.PASSOS)+" - "+str(global_.NAME))
-        return
-    
-    if new_grid in andaveis:
-        player.x = new_pos[0]
-        player.y = new_pos[1]
-        show_3x3(player.x//sqr, player.y//sqr, andaveis, quadrados, entrada, saida, labels)
-        global_.PASSOS += 1
-
+        if new_grid == self.grid.exit:
+            # draw_alert(F"Parabéns, {global_.NAME}, você encontrou o tesouro em {global_.PASSOS} passos!", window)
+            # add_highscore(str(global_.PASSOS) + " - " + str(global_.NAME))
+            print("ganhou")
+            return
+        
+        if new_grid in self.grid._get_walkable_coords():
+            self.player.x = new_pos[0]
+            self.player.y = new_pos[1]
+            self.grid._show_3x3(new_grid)
+            global_.PASSOS += 1
+            self.update()
+        else:
+            print("parede")

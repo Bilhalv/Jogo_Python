@@ -4,102 +4,154 @@ Creates a grid of squares to be used as a playable space.
 import pyglet
 from pyglet import shapes
 from .config import *
+import random
 
+class Grid:
+    def __init__(self, window:pyglet.window.Window, side_screen:int, space:int, square_size:int):
+        self.window = window
+        self.side_screen = side_screen
+        self.space = space
+        self.square_size = square_size
+        self.batch = pyglet.graphics.Batch()
+        self.label_batch = pyglet.graphics.Batch()
+        self.squares_grid:list[list[pyglet.shapes.Rectangle]] = self._create_grid()
+        self.labels_grid = self._create_labels()
+        self.walkable:list[tuple[int, int]] = []
+        self.entrance:tuple[int, int] = (0, len(self.squares_grid) - 1)
+        self.exit:tuple[int, int] = (len(self.squares_grid) - 1, 0)
 
-def find_on_grid(x, y, squares_grid):
-    """
-    Given an x and y coordinate, returns the row and column of the square
-    that contains that coordinate. If the coordinate is not inside any
-    square, it returns (None, None).
-    """
-    for i, row in enumerate(squares_grid):
-        for j, square in enumerate(row):
-            if square.x <= x <= square.x + square.width and \
-                    square.y <= y <= square.y + square.height:
-                return i, j
-    return None, None
+    def build_maze(self) -> None:
+        """Recursive backtracking algorithm to build a maze"""
+        def num_walkable_neighbors(x: int, y: int) -> int:
+            """Count number of walkable neighbors"""
+            neighbors = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
+            return sum(
+                1 for n_x, n_y in neighbors
+                if 0 <= n_x < len(self.squares_grid) and
+                0 <= n_y < len(self.squares_grid[0]) and
+                self._get_square([n_x, n_y]).color == FLOOR_COLOR)
 
+        current:tuple[int, int] = self.entrance
 
-def update_matriz(x, y, color, matriz):
-    """
-    Updates the color of a square in the grid.
-    """
-    if x < 0 or y < 0 or x >= len(matriz) or y >= len(matriz[0]):
-        return
-    if color == None:
-        return
-    matriz[x][y].color = color
+        while True:
+            # Check if we've reached the exit
+            if current == self.exit:
+                break
 
-def build_labels(x, y, batch, size):
-    """
-    Builds labels for each square in the grid.
-    """
+            # Generate all possible moves
+            options = [
+                c for c in [(current[0], current[1] + 1),
+                            (current[0], current[1] - 1),
+                            (current[0] + 1, current[1]),
+                            (current[0] - 1, current[1])]
+                if 0 <= c[0] < len(self.squares_grid) and
+                0 <= c[1] < len(self.squares_grid[0]) and
+                num_walkable_neighbors(c[0], c[1]) <= 3
+            ]
+
+            # If we have no options, backtrack
+            if not options:
+                if not self.walkable:
+                    current = self.entrance
+                else:
+                    current = random.choice(self._get_walkable_coords())
+
+            # If we have options, choose one and update the list of walkable coords
+            else:
+                current = random.choice(options)
+                temp:list[tuple[int, int]] = self._get_walkable_coords()
+                temp.append(current)
+                self._set_walkable_coords(temp)
+        self._show_3x3(self.entrance)
+
+    def _get_square(self, coord: list[int]) -> pyglet.shapes.Rectangle:
+        if 0 <= coord[0] < len(self.squares_grid) and 0 <= coord[1] < len(self.squares_grid[0]):
+            return self.squares_grid[coord[0]][coord[1]]
+        else:
+            return self.squares_grid[0][0]
+
+    def _get_walkable(self, coord:list[int]):
+        coords = self._get_walkable_coords()
+        return coords[coord[0]][coord[1]] == True
     
-    label = pyglet.text.Label(
-        text=f"?",
-        x=x,
-        y=y + size // 2,
-        batch=batch,
-        color=(255, 255, 255, 255),
-        width=size,
-        height=size,
-        font_size=SQUARE_SIZE//3,
-        align="center"
-    )
+    def _get_walkable_coords(self):
+        return self.walkable
     
-    return label
+    def _set_walkable_coords(self, coords:list[tuple[int, int]]):
+        self.walkable = coords
 
-def criar_grid(lado_tela, espaco, lado_quadrado, window):
-    """
-    Creates a grid of squares to be used as a playable space.
+    def _create_grid(self):
+        telaX = self.window.width - self.side_screen
+        telaY = self.window.height - self.side_screen
+        squares_grid = []
+        for i in range(self.side_screen // (self.space + self.square_size)):
+            squares_grid.append([])
+            for j in range(self.side_screen // (self.space + self.square_size)):
+                x = i * (self.space + self.square_size)
+                y = j * (self.space + self.square_size)
+                square = shapes.Rectangle(
+                    x=x+telaX//2,
+                    y=y+telaY//2,
+                    width=self.square_size,
+                    height=self.square_size,
+                    color=UNDISCOVERED_COLOR,
+                    batch=self.batch
+                )
+                squares_grid[i].append(square)
+        return squares_grid
 
-    Parameters:
-        lado_tela (int): length of one side of the window.
-        espaco (int): space between squares in pixels.
-        lado_quadrado (int): size of each square in pixels.
+    def _create_labels(self):
+        labels_grid = []
+        for row in self.squares_grid:
+            labels_grid.append([])
+            for square in row:
+                labels_grid[-1].append(self._build_label([square.x, square.y]))
+        return labels_grid
 
-    Returns:
-        batch (pyglet.graphics.Batch): Batch object to be rendered.
-        squares_grid (list): list of lists, where each inner list is a row of
-            squares.
-    """
-    batch = pyglet.graphics.Batch()
-    label_batch = pyglet.graphics.Batch()
+    def _build_label(self, coord:list[int]):
+        label = pyglet.text.Label(
+            text=f"?",
+            x=coord[0],
+            y=coord[1] + self.square_size // 2,
+            batch=self.label_batch,
+            color=(255, 255, 255, 255),
+            width=self.square_size,
+            height=self.square_size,
+            font_size=self.square_size//3,
+            align="center"
+        )
+        return label
 
-    # Background
-    bg = shapes.Rectangle(
-        x=0,
-        y=0,
-        width=lado_tela,
-        height=lado_tela,
-        color= BG_COLOR,
-        batch=batch
-    )
+    def find_on_grid(self, coord:list[int]):
+        for i, row in enumerate(self.squares_grid):
+            for j, square in enumerate(row):
+                if square.x <= coord[0] <= square.x + square.width and \
+                        square.y <= coord[1] <= square.y + square.height:
+                    return i, j
+        return None, None
 
-    # Grid of squares
-    squares_grid = []
-    labels_grid = []
-    for i in range(lado_tela // (espaco + lado_quadrado)):
-        squares_grid.append([])
-        labels_grid.append([])
-        for j in range(lado_tela // (espaco + lado_quadrado)):
-            x = i * (espaco + lado_quadrado)
-            y = j * (espaco + lado_quadrado)
-            square = shapes.Rectangle(
-                x=x+window.width//4,
-                y=y+window.height//4,
-                width=lado_quadrado,
-                height=lado_quadrado,
-                color=UNDISCOVERED_COLOR,
-                batch=batch
-            )
-            squares_grid[i].append(square)
-            labels_grid[i].append(build_labels(x+window.width//4, y+window.height//4, label_batch, lado_quadrado))
+    def update_matriz(self, coord:list[int], color):
+        if coord[0] < 0 or coord[1] < 0 or coord[0] >= len(self.squares_grid) or coord[1] >= len(self.squares_grid[0]):
+            return
+        if color == None:
+            return
+        self.squares_grid[coord[0]][coord[1]].color = color
+
+    def set_label(self, coord:list[int], text):
+        if 0 <= coord[0] < len(self.labels_grid) and 0 <= coord[1] < len(self.labels_grid):
+            self.labels_grid[coord[0]][coord[1]].text = text
     
-    return batch, squares_grid, label_batch, labels_grid
-def set_label(x, y, labels, text):
-    """
-    Updates the text of a square in the grid.
-    """
-    if 0 <= x < len(labels) and 0 <= y < len(labels):
-        labels[x][y].text = text
+    def _show_3x3(self, coord:tuple[int, int]):
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if 0 <= coord[0] + i < len(self.squares_grid) and 0 <= coord[1] + j < len(self.squares_grid):
+                    square = self.squares_grid[coord[0] + i][coord[1] + j]
+                    if (coord[0]+i, coord[1]+j) in self.walkable:
+                        square.color = FLOOR_COLOR
+                    elif (coord[0]+i, coord[1]+j) == self.entrance:
+                        square.color = ENTRANCE_COLOR
+                    elif (coord[0]+i, coord[1]+j) == self.exit:
+                        square.color = EXIT_COLOR
+                    else:
+                        square.color = WALL_COLOR
+                    self.labels_grid[coord[0] + i][coord[1] + j].visible = False

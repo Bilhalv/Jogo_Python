@@ -1,99 +1,35 @@
 import pyglet
 from src.HUD.index import *
 from src.config import *
-from src.grid import criar_grid
-from src.build_maze import build_maze
+from src.grid import Grid
 from src.player import *
+from telas.Screen import Screen
 
-def run_Game(window):
+def run_Game(window:Screen):
     """
     Grid of squares
     """
-    quadrados_batch, quadrados, label_batch, labels = criar_grid(SCREEN_SIZE, PADDING, SQUARE_SIZE, window.window)
+    grid = Grid(window.window, SCREEN_SIZE, PADDING, SQUARE_SIZE)
+    grid.build_maze()
 
     """
-    Start and end coordinates
+    Player
     """
-    entrada = [0, SCREEN_SIZE//(SQUARE_SIZE+PADDING)-1]
-    saida = [SCREEN_SIZE//(SQUARE_SIZE+PADDING)-1, 0]
-
-    """
-    List of walkable coordinates
-    """
-    andaveis = []
+    player = Player(grid)
 
     """
-    Player's initial coordinates
+    Draw the grid and player
     """
-    player_coord = [entrada[0]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2, entrada[1]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2]
-
-    # build the maze
-    build_maze(andaveis, entrada, saida, quadrados, labels)
-
-    # create player
-    player = build_player(SQUARE_SIZE//4, player_coord)
-
-    # show the starting positions
-    show_3x3(entrada[0], entrada[1], andaveis, quadrados, entrada, saida, labels)
-    andaveis.append(entrada)
-    andaveis.append(saida)
-
-    @window.window.event
-    def on_key_press(symbol, modifiers):
-        """
-        Handle player movement
-        """
-        move_player(player=player, andaveis=andaveis, quadrados=quadrados, entrada=entrada, saida=saida, key=symbol, sqr=SQUARE_SIZE+PADDING, window=window.window, labels=labels)
-        if symbol == pyglet.window.key.ESCAPE:
-            exit()
-        if symbol == pyglet.window.key.SPACE:
-            start()
-        if symbol == pyglet.window.key.R:
-            restart()
-
-    def restart():
-        """
-        Restarts the game.
-        """
-        global andaveis, quadrados, player, quadrados_batch
-        andaveis = []
-        quadrados_batch, quadrados, label_batch, labels = criar_grid(SCREEN_SIZE, PADDING, SQUARE_SIZE, window.window)
-        build_maze(andaveis, entrada, saida, quadrados, labels)
-        show_3x3(entrada[0], entrada[1], andaveis, quadrados, entrada, saida, labels)
-        andaveis.append(entrada)
-        andaveis.append(saida)
-        player_coord = [entrada[0]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2, entrada[1]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2]
-        player = build_player(SQUARE_SIZE//4, player_coord)
-
-    def exit():
-        """
-        Exits the game.
-        """
-        window.window.close()
-
-    def start():
-        """
-        Starts the game.
-        """
-        global andaveis, quadrados, player, quadrados_batch
-        player_coord = [entrada[0]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2, entrada[1]*(SQUARE_SIZE+PADDING)+(SQUARE_SIZE)/2]
-        player = build_player(SQUARE_SIZE//4, player_coord)
-
-
-    @window.window.event
-    def on_mouse_press(x, y, button, modifiers):
-        if isStart(x, y):
-            start()
-
-        elif isRestart(x, y):
-            restart()
-
     @window.window.event
     def on_draw():
-        """
-        Draw the grid and player
-        """
-        window.window.clear()
-        quadrados_batch.draw()
-        label_batch.draw()
+        window.clear()
+        grid.batch.draw()
+        grid.label_batch.draw()
         player.draw()
+    
+    @window.window.event
+    def on_key_press(symbol, modifiers):
+        if symbol == pyglet.window.key.ESCAPE:
+            window.window.close()
+        else:
+            player.move(symbol)

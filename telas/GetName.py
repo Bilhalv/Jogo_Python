@@ -6,7 +6,7 @@ def Run_GetName(window:Screen):
 
     # Create a text input box
     input_box = pyglet.text.Label(
-        "",
+        "AAA",
         font_size=20,
         x=window.window.width // 2,
         y=window.window.height // 2,
