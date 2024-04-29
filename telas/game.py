@@ -12,6 +12,35 @@ def run_Game(window:Screen):
     grid = Grid(window.window, SCREEN_SIZE, PADDING, SQUARE_SIZE)
     grid.build_maze()
 
+    def winning():
+        window.clear_listeners()
+        grid._show_all()
+        player.player.visible = False
+        def add_highscore():
+            highscore = open("highscore.txt", "a")
+            highscore.write(f"{global_.NAME}: {global_.PASSOS//(global_.DIFICULDADE_ATUAL//2)}\n")
+            highscore.close()
+        @window.window.event
+        def on_draw():
+            pyglet.shapes.Rectangle(0, 0, window.window.width, window.window.height, color=(0, 0, 0, 50)).draw()
+            pyglet.text.Label(
+                text=f"Parabéns {global_.NAME}, você venceu com {global_.PASSOS//(global_.DIFICULDADE_ATUAL//2)} pontos!",
+                color=(255, 255, 255, 255),
+                font_size=50,
+                y=window.window.height // 2,
+                align="center",
+                width=window.window.width
+            ).draw()
+        
+        @window.window.event
+        def on_key_press(symbol, modifiers):
+            if symbol == pyglet.window.key.ESCAPE:
+                window.window.close()
+            elif symbol == pyglet.window.key.ENTER:
+                from .menu import Run_Menu
+                Run_Menu(window)
+        add_highscore()
+
     """
     Player
     """
@@ -29,7 +58,15 @@ def run_Game(window:Screen):
     
     @window.window.event
     def on_key_press(symbol, modifiers):
+        isWin = False
         if symbol == pyglet.window.key.ESCAPE:
             window.window.close()
+        elif symbol == pyglet.window.key.H:
+            grid._show_all()
+        elif symbol == pyglet.window.key.R:
+            grid.build_maze()
         else:
-            player.move(symbol)
+            isWin = player.move(symbol)
+        
+        if isWin:
+            winning()

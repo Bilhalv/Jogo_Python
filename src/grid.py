@@ -21,15 +21,16 @@ class Grid:
         self.exit:tuple[int, int] = (len(self.squares_grid) - 1, 0)
 
     def build_maze(self) -> None:
+        self.walkable = []
         """Recursive backtracking algorithm to build a maze"""
         def num_walkable_neighbors(x: int, y: int) -> int:
             """Count number of walkable neighbors"""
-            neighbors = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
-            return sum(
-                1 for n_x, n_y in neighbors
-                if 0 <= n_x < len(self.squares_grid) and
-                0 <= n_y < len(self.squares_grid[0]) and
-                self._get_square([n_x, n_y]).color == FLOOR_COLOR)
+            i = 0
+            for n_x, n_y in [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]:
+                if 0 <= n_x < len(self.squares_grid) and 0 <= n_y < len(self.squares_grid):
+                    if (n_x, n_y) in [(n[0], n[1]) for n in self.walkable]:
+                        i += 1
+            return i
 
         current:tuple[int, int] = self.entrance
 
@@ -44,9 +45,7 @@ class Grid:
                             (current[0], current[1] - 1),
                             (current[0] + 1, current[1]),
                             (current[0] - 1, current[1])]
-                if 0 <= c[0] < len(self.squares_grid) and
-                0 <= c[1] < len(self.squares_grid[0]) and
-                num_walkable_neighbors(c[0], c[1]) <= 3
+                if num_walkable_neighbors(c[0], c[1]) < 3 and 0 <= c[0] < len(self.squares_grid) and 0 <= c[1] < len(self.squares_grid[0])
             ]
 
             # If we have no options, backtrack
@@ -102,27 +101,27 @@ class Grid:
 
     def _create_labels(self):
         labels_grid = []
-        for row in self.squares_grid:
+        for x, row in enumerate(self.squares_grid):
             labels_grid.append([])
-            for square in row:
-                labels_grid[-1].append(self._build_label([square.x, square.y]))
+            for y, square in enumerate(row):
+                labels_grid[-1].append(self._build_label((square.x, square.y), (x, y)))
         return labels_grid
 
-    def _build_label(self, coord:list[int]):
+    def _build_label(self, coord:tuple[int, int], xANDy: tuple[int, int]):
         label = pyglet.text.Label(
-            text=f"?",
+            text=f"{xANDy[0]} - {xANDy[1]}",
             x=coord[0],
             y=coord[1] + self.square_size // 2,
             batch=self.label_batch,
             color=(255, 255, 255, 255),
             width=self.square_size,
             height=self.square_size,
-            font_size=self.square_size//3,
+            font_size=self.square_size//6,
             align="center"
         )
         return label
 
-    def find_on_grid(self, coord:list[int]):
+    def find_on_grid(self, coord:tuple[int, int]):
         for i, row in enumerate(self.squares_grid):
             for j, square in enumerate(row):
                 if square.x <= coord[0] <= square.x + square.width and \
@@ -141,17 +140,30 @@ class Grid:
         if 0 <= coord[0] < len(self.labels_grid) and 0 <= coord[1] < len(self.labels_grid):
             self.labels_grid[coord[0]][coord[1]].text = text
     
+    def _show_all(self):
+        for x, row in enumerate(self.squares_grid):
+            for y, square in enumerate(row):
+                if (x, y) == self.entrance:
+                    square.color = ENTRANCE_COLOR
+                elif (x, y) == self.exit:
+                    square.color = EXIT_COLOR
+                elif (x, y) in self.walkable:
+                    square.color = FLOOR_COLOR
+                else:
+                    square.color = WALL_COLOR
+                self.labels_grid[x][y].visible = False
+    
     def _show_3x3(self, coord:tuple[int, int]):
         for i in range(-1, 2):
             for j in range(-1, 2):
                 if 0 <= coord[0] + i < len(self.squares_grid) and 0 <= coord[1] + j < len(self.squares_grid):
                     square = self.squares_grid[coord[0] + i][coord[1] + j]
-                    if (coord[0]+i, coord[1]+j) in self.walkable:
-                        square.color = FLOOR_COLOR
-                    elif (coord[0]+i, coord[1]+j) == self.entrance:
+                    if (coord[0]+i, coord[1]+j) == self.entrance:
                         square.color = ENTRANCE_COLOR
                     elif (coord[0]+i, coord[1]+j) == self.exit:
                         square.color = EXIT_COLOR
+                    elif (coord[0]+i, coord[1]+j) in self.walkable:
+                        square.color = FLOOR_COLOR
                     else:
                         square.color = WALL_COLOR
                     self.labels_grid[coord[0] + i][coord[1] + j].visible = False
