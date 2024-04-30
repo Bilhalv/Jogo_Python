@@ -1,19 +1,19 @@
-def add_highscore(x):
+def add_highscore(x:tuple[str, int]):
     high = get_highscore()
     high.append(x)
-    high.sort()
+    high.sort(key=lambda x: x[1])
     with open("highscore.txt", "w") as file:
         for line in high:
-            file.write(line + "\n")
+            file.write(f"{line[0]}: {line[1]}\n")
 
-def get_highscore():
+def get_highscore() -> list[tuple[str, int]]:
     high = []
     with open("highscore.txt", "r") as file:
-        for idx, line in enumerate(file.readlines()):
+        for idx, line in enumerate(file.readlines()[:5]):
             line = line.rstrip()
             if "\n" in line:
                 line = line[:-1]
-            if idx < 5:
-                high.append(line)
-    high.sort()
+            final = line.split(": ")
+            high.append((final[0], int(final[1])))
+    high.sort(key=lambda x: x[1])
     return high

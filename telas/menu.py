@@ -19,6 +19,8 @@ def Run_Menu(menu:Screen):
 
     def highscores_button():
         print("Ranking")
+        from telas.highscore import Run_Highscore
+        Run_Highscore(menu)
 
     # Modify the window-related operations to use the Screen instance
     @menu.window.event
