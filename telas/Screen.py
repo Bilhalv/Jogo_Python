@@ -1,4 +1,5 @@
 import pyglet
+import pyglet.event
 
 class Screen:
     def __init__(self, title):
@@ -24,7 +25,11 @@ class Screen:
         self.window.remove_handlers(listener)
     
     def clear_listeners(self):
-        self.window.remove_handlers()
+        self.window.dispatch_events()
+    
+    def _clear_all(self):
+        self.window.clear()
+        self.clear_listeners()
     
     def change_caption(self, caption):
         self.window.set_caption(caption)

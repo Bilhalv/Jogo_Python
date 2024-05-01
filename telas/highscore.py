@@ -1,6 +1,7 @@
 from tkinter import font
 import pyglet
 from pyglet.window import key
+from src.highscore import get_highscore
 from telas.Screen import Screen
 
 
@@ -9,8 +10,8 @@ def Run_Highscore(highscore:Screen):
 
     # txt com os highscores
     highscores = []
-    for i, line in enumerate(open("highscore.txt").readlines()[:5]):
-        name, score = line.split(": ")
+    for i, line in enumerate(get_highscore()):
+        name, score = line
         high = [
             pyglet.text.Label(
                 name,
@@ -47,6 +48,7 @@ def Run_Highscore(highscore:Screen):
     @highscore.window.event
     def on_draw():
         highscore.clear()
+        highscore.clear_listeners()
         confirmar.draw()
         for high in highscores:
             high[0].draw()
