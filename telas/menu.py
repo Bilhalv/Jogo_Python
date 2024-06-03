@@ -9,19 +9,19 @@ def Run_Menu(menu:Screen):
 
     def start_button():
         print("Start")
-        menu._clear_all
+        menu._clear_all()
         from .GetName import Run_GetName
         Run_GetName(menu)
 
     def settings_button():
         print("Settings")
-        menu._clear_all
+        menu._clear_all()
         from telas.settings import Run_Settings
         Run_Settings(menu)
 
     def highscores_button():
         print("Ranking")
-        menu._clear_all
+        menu._clear_all()
         from telas.highscore import Run_Highscore
         Run_Highscore(menu)
 

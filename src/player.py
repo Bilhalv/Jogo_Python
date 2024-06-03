@@ -71,6 +71,7 @@ class Player:
             self.player.y = self.grid.squares_grid[new_grid[0]][new_grid[1]].y + self.grid.square_size // 2
             self.grid._show_3x3(new_grid)
             global_.PASSOS += 1
+            print("Passos:", global_.PASSOS)
         else:
             print("parede")
         

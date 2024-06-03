@@ -14,17 +14,21 @@ def run_Game(window:Screen):
 
     def winning():
         window.clear_listeners()
+        
+        pontos = global_.DIFICULDADE_ATUAL * 10
+        pontos -= global_.PASSOS - global_.DIFICULDADE_ATUAL*2
+        
         grid._show_all()
         player.player.visible = False
         def add_highscore():
             highscore = open("highscore.txt", "a")
-            highscore.write(f"{global_.NAME}: {global_.PASSOS//(global_.DIFICULDADE_ATUAL//2)}\n")
+            highscore.write(f"{global_.NAME}: {pontos}\n")
             highscore.close()
         @window.window.event
         def on_draw():
             pyglet.shapes.Rectangle(0, 0, window.window.width, window.window.height, color=(0, 0, 0, 50)).draw()
             pyglet.text.Label(
-                text=f"Parabéns {global_.NAME}, você venceu com {global_.PASSOS//(global_.DIFICULDADE_ATUAL//2)} pontos!",
+                text=f"Parabéns {global_.NAME}, você venceu com {pontos} pontos!",
                 color=(255, 255, 255, 255),
                 font_size=50,
                 y=window.window.height // 2,

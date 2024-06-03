@@ -12,6 +12,8 @@ def Run_Highscore(highscore:Screen):
     highscores = []
     for i, line in enumerate(get_highscore()):
         name, score = line
+        if name == "NAN":
+            break
         high = [
             pyglet.text.Label(
                 name,
